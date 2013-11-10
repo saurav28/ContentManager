@@ -1,6 +1,18 @@
 package org.saurav.contentmanager;
 
+import java.io.File;
+
+import org.apache.chemistry.opencmis.client.api.CmisObject;
+
+
+
+import org.apache.chemistry.opencmis.client.api.Document;
+import org.apache.chemistry.opencmis.client.api.Folder;
+import org.apache.chemistry.opencmis.commons.data.ContentStream;
+import org.apache.chemistry.opencmis.commons.impl.Base64.InputStream;
 import org.saurav.contentmanager.model.CMISModel;
+import org.saurav.contentmanager.util.ContentManagerListAdapter;
+import org.saurav.contentmanager.util.ToastUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -31,12 +43,16 @@ public class ItemListActivity extends FragmentActivity
 	 * Whether or not the activity is in two-pane mode, i.e. running on a tablet device.
 	 */
 	private boolean mTwoPane;
+	private ItemListFragment itemListFragment; 
+	//=((ItemListFragment)getSupportFragmentManager().findFragmentById(R.id.item_list));
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_item_list);
+		itemListFragment = ((ItemListFragment) getSupportFragmentManager().findFragmentById(R.id.item_list));
+		itemListFragment.setActivateOnItemClick(true);
 
 		if (findViewById(R.id.item_detail_container) != null) {
 			// The detail container view will be present only in the
@@ -47,8 +63,6 @@ public class ItemListActivity extends FragmentActivity
 
 			// In two-pane mode, list items should be given the
 			// 'activated' state when touched.
-			((ItemListFragment) getSupportFragmentManager().findFragmentById(R.id.item_list))
-					.setActivateOnItemClick(true);
 		}
 
 		// TODO: If exposing deep links into your app, handle intents here.
@@ -81,14 +95,25 @@ public class ItemListActivity extends FragmentActivity
 	}
 	private void openFiles()
 	{
-		Context context = getApplicationContext();
-		CharSequence text = "Write the open document code here";
-		int duration = Toast.LENGTH_SHORT;
-
-		Toast toast = Toast.makeText(context, text, duration);
-		toast.show();
+		
 		
 //		Intent intent = new Intent();
+		ContentManagerListAdapter listAdatper = (ContentManagerListAdapter) itemListFragment.getListAdapter();
+		Object[] objectArray = listAdatper.getObjectArray();
+		boolean[] checkedArray = listAdatper.getChecked();
+		
+		CmisObject selectedObject = (CmisObject) objectArray[listAdatper.getCheckedPosition()];
+		if(selectedObject instanceof Folder){
+			Context context = getApplicationContext();
+			CharSequence text = "Selected object is Folder, hence can not be opened";
+			ToastUtils.showText(context, text);
+		}else if(selectedObject instanceof Document){
+			Document selectedDocument = (Document) selectedObject;
+			ContentStream contentStream = selectedDocument.getContentStream();
+			java.io.InputStream inputStream = contentStream.getStream();
+			
+			
+		}
 //		intent.setAction(android.content.Intent.ACTION_VIEW);
 //		File file = new File("/sdcard/test.mp4");
 //		intent.setDataAndType(Uri.fromFile(file), "video/*");
@@ -152,7 +177,9 @@ public class ItemListActivity extends FragmentActivity
 			
 			//Trying to strt the same Item List fragment
 			//http://developer.android.com/training/basics/fragments/communicating.html#Deliver
-			ItemListFragment itemListFragment =((ItemListFragment)getSupportFragmentManager().findFragmentById(R.id.item_list));
+			
+			
+			
 			itemListFragment.updateView(id);
 //			Bundle arguments = new Bundle();
 //			arguments.putString(ItemDetailFragment.ARG_ITEM_ID, id);

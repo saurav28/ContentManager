@@ -51,7 +51,7 @@ public class ContentListFragment extends ListFragment
 		
 		ContentManagerListAdapter listAdapter = new ContentManagerListAdapter(this.getActivity(), android.R.layout.simple_list_item_activated_1,android.R.id.text1,folderList.toArray());
 		//listView.setAdapter(listAdapter);
-		return listAdapter;
+		return null;
 
 	}
 	
