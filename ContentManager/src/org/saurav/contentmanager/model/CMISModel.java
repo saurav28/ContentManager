@@ -3,32 +3,34 @@ package org.saurav.contentmanager.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.chemistry.opencmis.client.api.Folder;
+import org.apache.chemistry.opencmis.client.api.CmisObject;
 
 public class CMISModel
 {
-	private List<Folder> folderList =null;
+	private List<CmisObject> cmisObjectList = null;
 	private static CMISModel instance;
-	
-	private CMISModel(){
-		folderList = new ArrayList<Folder>();
+
+	private CMISModel()
+	{
+		cmisObjectList = new ArrayList<CmisObject>();
 	}
-	
-	public static CMISModel getInstance(){
-		if(instance ==null){
+
+	public static CMISModel getInstance()
+	{
+		if (instance == null) {
 			instance = new CMISModel();
 		}
 		return instance;
 	}
 
-	public List<Folder> getFolderList()
+	public List<CmisObject> getFolderList()
 	{
-		return folderList;
+		return cmisObjectList;
 	}
 
-	public void setFolderList(List<Folder> folderList)
+	public void setFolderList(List<CmisObject> folderList)
 	{
-		this.folderList = folderList;
+		this.cmisObjectList = folderList;
 	}
-	
+
 }

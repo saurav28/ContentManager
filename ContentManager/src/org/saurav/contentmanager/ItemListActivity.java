@@ -1,21 +1,16 @@
 package org.saurav.contentmanager;
 
-import java.io.File;
+import java.util.List;
 
 import org.apache.chemistry.opencmis.client.api.CmisObject;
-
-
-
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
-import org.apache.chemistry.opencmis.commons.impl.Base64.InputStream;
 import org.saurav.contentmanager.model.CMISModel;
 import org.saurav.contentmanager.util.ContentManagerListAdapter;
 import org.saurav.contentmanager.util.ToastUtils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -43,8 +38,9 @@ public class ItemListActivity extends FragmentActivity
 	 * Whether or not the activity is in two-pane mode, i.e. running on a tablet device.
 	 */
 	private boolean mTwoPane;
-	private ItemListFragment itemListFragment; 
-	//=((ItemListFragment)getSupportFragmentManager().findFragmentById(R.id.item_list));
+	private ItemListFragment itemListFragment;
+
+	// =((ItemListFragment)getSupportFragmentManager().findFragmentById(R.id.item_list));
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -67,79 +63,82 @@ public class ItemListActivity extends FragmentActivity
 
 		// TODO: If exposing deep links into your app, handle intents here.
 	}
+
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-	    // Inflate the menu items for use in the action bar
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.list_folder, menu);
-	    return super.onCreateOptionsMenu(menu);
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.list_folder, menu);
+		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		 switch (item.getItemId()) {
-		       
-		        case R.id.action_settings:
-		            openSettings();
-		            return true;
-		        case R.id.info:
-		        	showInfo();
-		        	return true;
-		        case R.id.open:
-		        	openFiles();
-		        	return true;
-		        default:
-		            return super.onOptionsItemSelected(item);
-		    }
+		switch (item.getItemId()) {
+
+			case R.id.action_settings :
+				openSettings();
+				return true;
+			case R.id.info :
+				showInfo();
+				return true;
+			case R.id.open :
+				openFiles();
+				return true;
+			default :
+				return super.onOptionsItemSelected(item);
+		}
 	}
+
 	private void openFiles()
 	{
-		
-		
-//		Intent intent = new Intent();
+
+		// Intent intent = new Intent();
 		ContentManagerListAdapter listAdatper = (ContentManagerListAdapter) itemListFragment.getListAdapter();
 		Object[] objectArray = listAdatper.getObjectArray();
 		boolean[] checkedArray = listAdatper.getChecked();
-		
+
 		CmisObject selectedObject = (CmisObject) objectArray[listAdatper.getCheckedPosition()];
-		if(selectedObject instanceof Folder){
+		if (selectedObject instanceof Folder) {
 			Context context = getApplicationContext();
 			CharSequence text = "Selected object is Folder, hence can not be opened";
 			ToastUtils.showText(context, text);
-		}else if(selectedObject instanceof Document){
+		}
+		else if (selectedObject instanceof Document) {
 			Document selectedDocument = (Document) selectedObject;
 			ContentStream contentStream = selectedDocument.getContentStream();
 			java.io.InputStream inputStream = contentStream.getStream();
-			
-			
+
 		}
-//		intent.setAction(android.content.Intent.ACTION_VIEW);
-//		File file = new File("/sdcard/test.mp4");
-//		intent.setDataAndType(Uri.fromFile(file), "video/*");
-//		startActivity(intent); 
-//
-//		Intent intent = new Intent();
-//		intent.setAction(android.content.Intent.ACTION_VIEW);
-//		File file = new File("/sdcard/test.mp3");
-//		intent.setDataAndType(Uri.fromFile(file), "audio/*");
-//		startActivity(intent); 
-		
+		// intent.setAction(android.content.Intent.ACTION_VIEW);
+		// File file = new File("/sdcard/test.mp4");
+		// intent.setDataAndType(Uri.fromFile(file), "video/*");
+		// startActivity(intent);
+		//
+		// Intent intent = new Intent();
+		// intent.setAction(android.content.Intent.ACTION_VIEW);
+		// File file = new File("/sdcard/test.mp3");
+		// intent.setDataAndType(Uri.fromFile(file), "audio/*");
+		// startActivity(intent);
+
 	}
+
 	/**
-	 * TODO: Right now doing it for learning purpose.
-	 * But need to find out on how to show the info
+	 * TODO: Right now doing it for learning purpose. But need to find out on how to show the info
 	 */
 	private void showInfo()
 	{
 		Bundle arguments = new Bundle();
-		//arguments.putString(ItemDetailFragment.ARG_ITEM_ID,get);
+		// arguments.putString(ItemDetailFragment.ARG_ITEM_ID,get);
 		FolderDetailFragment fragment = new FolderDetailFragment();
 		fragment.setArguments(arguments);
 		fragment.show(getSupportFragmentManager(), "showdialog");
-		//getSupportFragmentManager().beginTransaction().replace(android.R.id.list, fragment).commit();
-		
+		// getSupportFragmentManager().beginTransaction().replace(android.R.id.list, fragment).commit();
+
 	}
+
 	private void openSettings()
 	{
 		Context context = getApplicationContext();
@@ -148,8 +147,9 @@ public class ItemListActivity extends FragmentActivity
 
 		Toast toast = Toast.makeText(context, text, duration);
 		toast.show();
-		
+
 	}
+
 	/**
 	 * Callback method from {@link ItemListFragment.Callbacks} indicating that the item with the given ID was selected.
 	 */
@@ -170,23 +170,39 @@ public class ItemListActivity extends FragmentActivity
 		else {
 			// In single-pane mode, simply start the detail activity
 			// for the selected item ID.
-			CMISModel.getInstance().getFolderList().get(Integer.parseInt(id));
-//			Intent detailIntent = new Intent(this, ItemDetailActivity.class);
-//			detailIntent.putExtra(ItemDetailFragment.ARG_ITEM_ID, id);
-//			startActivity(detailIntent);
-			
-			//Trying to strt the same Item List fragment
-			//http://developer.android.com/training/basics/fragments/communicating.html#Deliver
-			
-			
-			
-			itemListFragment.updateView(id);
-//			Bundle arguments = new Bundle();
-//			arguments.putString(ItemDetailFragment.ARG_ITEM_ID, id);
-//			itemListFragment.setArguments(arguments);
-//			getSupportFragmentManager().beginTransaction().replace(R.id.item_detail_container, itemListFragment).commit();
+
+			List<CmisObject> cmisObjectList = CMISModel.getInstance().getFolderList();
+
+			int parseInt = Integer.parseInt(id);
+			CmisObject cmisObject = cmisObjectList.get(parseInt);
+			if (cmisObject instanceof Document) {
+				Document selectedDocument = (Document) cmisObject;
+				// selectedDocument.
+				// Intent intent = new Intent();
+				// intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				// intent.setAction(Intent.ACTION_VIEW);
+				// String type = "application/msword";
+				// intent.setDataAndType(Uri.fromFile(file), type);
+				// startActivity(intent);
+				ToastUtils.showText(this, "Opening of file functionality is coming soon");
+			}
+			else if (cmisObjectList.size() >= parseInt && cmisObject instanceof Folder) {
+
+				itemListFragment.updateView(id);
+			}
+			// Intent detailIntent = new Intent(this, ItemDetailActivity.class);
+			// detailIntent.putExtra(ItemDetailFragment.ARG_ITEM_ID, id);
+			// startActivity(detailIntent);
+
+			// Trying to strt the same Item List fragment
+			// http://developer.android.com/training/basics/fragments/communicating.html#Deliver
+
+			// Bundle arguments = new Bundle();
+			// arguments.putString(ItemDetailFragment.ARG_ITEM_ID, id);
+			// itemListFragment.setArguments(arguments);
+			// getSupportFragmentManager().beginTransaction().replace(R.id.item_detail_container,
+			// itemListFragment).commit();
 		}
-		
-		
+
 	}
 }

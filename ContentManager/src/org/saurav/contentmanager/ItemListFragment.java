@@ -4,22 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.chemistry.opencmis.client.api.CmisObject;
+import org.apache.chemistry.opencmis.client.api.Document;
+import org.apache.chemistry.opencmis.client.api.Folder;
+import org.apache.chemistry.opencmis.client.api.ItemIterable;
+import org.saurav.contentmanager.model.CMISModel;
+import org.saurav.contentmanager.util.ContentManagerListAdapter;
+
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
-
-import org.apache.chemistry.opencmis.client.api.CmisObject;
-import org.apache.chemistry.opencmis.client.api.Folder;
-import org.apache.chemistry.opencmis.client.api.ItemIterable;
-import org.saurav.contentmanager.dummy.DummyContent;
-import org.saurav.contentmanager.model.CMISModel;
-import org.saurav.contentmanager.util.ContentManagerListAdapter;
 
 /**
  * A list fragment representing a list of Items. This fragment also supports tablet devices by allowing list items to be
@@ -35,7 +33,7 @@ public class ItemListFragment extends ListFragment
 	 * The serialization (saved instance state) Bundle key representing the activated item position. Only used on
 	 * tablets.
 	 */
-	
+
 	private static final String STATE_ACTIVATED_POSITION = "activated_position";
 	public static final String ARG_ITEM_ID = "item_id";
 
@@ -48,7 +46,7 @@ public class ItemListFragment extends ListFragment
 	 * The current activated item position. Only used on tablets.
 	 */
 	private int mActivatedPosition = ListView.INVALID_POSITION;
-	
+
 	private ContentManagerListAdapter listAdapter;
 
 	/**
@@ -90,21 +88,23 @@ public class ItemListFragment extends ListFragment
 		super.onCreate(savedInstanceState);
 
 		// TODO: replace with a real list adapter.
-//		if(getArguments() !=null){
-//		if (getArguments().containsKey(ARG_ITEM_ID)) {
-//		Folder selectedFolder = CMISModel.getInstance().getFolderList().get(Integer.parseInt((getArguments().getString(ARG_ITEM_ID))));
-//		ItemIterable<CmisObject> folderList = selectedFolder.getChildren();
-//		}
-//		}
-		
-		
-		List<Folder> folderList = CMISModel.getInstance().getFolderList();
-		//ContentManagerListAdapter listAdapter = new ContentManagerListAdapter(this.getActivity(), android.R.layout.simple_list_item_activated_1,android.R.id.text1,list.toArray(new String[] {}));
-		
-		listAdapter = new ContentManagerListAdapter(this.getActivity(), android.R.layout.simple_list_item_activated_1,android.R.id.text1,folderList.toArray());
-		
-//		setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-//				android.R.layout.simple_list_item_activated_1, android.R.id.text1, DummyContent.ITEMS));
+		// if(getArguments() !=null){
+		// if (getArguments().containsKey(ARG_ITEM_ID)) {
+		// Folder selectedFolder =
+		// CMISModel.getInstance().getFolderList().get(Integer.parseInt((getArguments().getString(ARG_ITEM_ID))));
+		// ItemIterable<CmisObject> folderList = selectedFolder.getChildren();
+		// }
+		// }
+
+		List<CmisObject> cmisObject = CMISModel.getInstance().getFolderList();
+		// ContentManagerListAdapter listAdapter = new ContentManagerListAdapter(this.getActivity(),
+		// android.R.layout.simple_list_item_activated_1,android.R.id.text1,list.toArray(new String[] {}));
+
+		listAdapter = new ContentManagerListAdapter(this.getActivity(), android.R.layout.simple_list_item_activated_1,
+				android.R.id.text1, cmisObject.toArray());
+
+		// setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
+		// android.R.layout.simple_list_item_activated_1, android.R.id.text1, DummyContent.ITEMS));
 		setListAdapter(listAdapter);
 	}
 
@@ -148,7 +148,7 @@ public class ItemListFragment extends ListFragment
 
 		// Notify the active callbacks interface (the activity, if the
 		// fragment is attached to one) that an item has been selected.
-		
+
 		mCallbacks.onItemSelected(String.valueOf(position));
 	}
 
@@ -184,45 +184,52 @@ public class ItemListFragment extends ListFragment
 
 		mActivatedPosition = position;
 	}
-	
-	public void updateView(String id){
-		final Folder selectedFolder = CMISModel.getInstance().getFolderList().get(Integer.parseInt(id));
-		final ItemIterable<CmisObject> folderList = selectedFolder.getChildren();
-		Log.i("ItemListFragment", "the folder::" +selectedFolder.getName());
-		
-		
-		AsyncTask asyncTask = new AsyncTask() {
-			@Override
-			protected Object doInBackground(Object... params)
+
+	public void updateView(String id)
+	{
+		final CmisObject selectedCmisObject = CMISModel.getInstance().getFolderList().get(Integer.parseInt(id));
+		if (selectedCmisObject instanceof Document) {
+			return;
+		}
+		else {
+			final Folder selectedFolder = (Folder) selectedCmisObject;
+			final ItemIterable<CmisObject> folderList = selectedFolder.getChildren();
+			Log.i("ItemListFragment", "the folder::" + selectedFolder.getName());
+
+			AsyncTask asyncTask = new AsyncTask()
 			{
-				Log.i("ItemListFragment", "children  of ::" +selectedFolder.getName() +"are ::"+ selectedFolder.getChildren().getTotalNumItems());
-				
+				@Override
+				protected Object doInBackground(Object... params)
+				{
+					Log.i("ItemListFragment", "children  of ::" + selectedFolder.getName() + "are ::"
+												+ selectedFolder.getChildren().getTotalNumItems());
+
 					ArrayList<CmisObject> cmisObjectList = new ArrayList<CmisObject>();
 					for (CmisObject cmisObject : folderList) {
 						cmisObjectList.add(cmisObject);
 					}
-					
-				
-				return cmisObjectList;
+
+					return cmisObjectList;
+				}
+			};
+
+			AsyncTask asyncTask1 = asyncTask.execute(new Object());
+			// Toast.makeText(getActivity(), " I have clicked", 10);
+			ArrayList<CmisObject> cmisObjectList = null;
+			try {
+				cmisObjectList = (ArrayList<CmisObject>) asyncTask1.get();
 			}
-		};
-		
-		AsyncTask asyncTask1 =asyncTask.execute(new Object());
-		//Toast.makeText(getActivity(), " I have clicked", 10);
-		ArrayList<CmisObject> cmisObjectList =null;
-		try {
-			cmisObjectList = (ArrayList<CmisObject>) asyncTask1.get();
+			catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			listAdapter = new ContentManagerListAdapter(getActivity(), android.R.layout.simple_list_item_activated_1,
+					android.R.id.text1, cmisObjectList.toArray());
+			setListAdapter(listAdapter);
 		}
-		catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		listAdapter = new ContentManagerListAdapter(getActivity(), android.R.layout.simple_list_item_activated_1,android.R.id.text1,cmisObjectList.toArray());
-		setListAdapter(listAdapter);
-		
 	}
 }
