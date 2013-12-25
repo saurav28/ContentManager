@@ -8,6 +8,7 @@ import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import org.saurav.contentmanager.model.CMISModel;
 import org.saurav.contentmanager.util.ContentManagerListAdapter;
+import org.saurav.contentmanager.util.FileUtils;
 import org.saurav.contentmanager.util.ToastUtils;
 
 import android.content.Context;
@@ -39,6 +40,7 @@ public class ItemListActivity extends FragmentActivity
 	 */
 	private boolean mTwoPane;
 	private ItemListFragment itemListFragment;
+	List<CmisObject> cmisObjectList = CMISModel.getInstance().getFolderList();
 
 	// =((ItemListFragment)getSupportFragmentManager().findFragmentById(R.id.item_list));
 
@@ -171,24 +173,16 @@ public class ItemListActivity extends FragmentActivity
 			// In single-pane mode, simply start the detail activity
 			// for the selected item ID.
 
-			List<CmisObject> cmisObjectList = CMISModel.getInstance().getFolderList();
-
 			int parseInt = Integer.parseInt(id);
 			CmisObject cmisObject = cmisObjectList.get(parseInt);
 			if (cmisObject instanceof Document) {
 				Document selectedDocument = (Document) cmisObject;
-				// selectedDocument.
-				// Intent intent = new Intent();
-				// intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				// intent.setAction(Intent.ACTION_VIEW);
-				// String type = "application/msword";
-				// intent.setDataAndType(Uri.fromFile(file), type);
-				// startActivity(intent);
-				ToastUtils.showText(this, "Opening of file functionality is coming soon");
+				// ContentStream contentStream = selectedDocument.getContentStream();
+				FileUtils.writeAndOpenFile(selectedDocument, this, selectedDocument.getName());
 			}
 			else if (cmisObjectList.size() >= parseInt && cmisObject instanceof Folder) {
 
-				itemListFragment.updateView(id);
+				cmisObjectList = itemListFragment.updateView(id);
 			}
 			// Intent detailIntent = new Intent(this, ItemDetailActivity.class);
 			// detailIntent.putExtra(ItemDetailFragment.ARG_ITEM_ID, id);

@@ -185,11 +185,11 @@ public class ItemListFragment extends ListFragment
 		mActivatedPosition = position;
 	}
 
-	public void updateView(String id)
+	public List<CmisObject> updateView(String id)
 	{
 		final CmisObject selectedCmisObject = CMISModel.getInstance().getFolderList().get(Integer.parseInt(id));
 		if (selectedCmisObject instanceof Document) {
-			return;
+			return null;
 		}
 		else {
 			final Folder selectedFolder = (Folder) selectedCmisObject;
@@ -230,6 +230,7 @@ public class ItemListFragment extends ListFragment
 			listAdapter = new ContentManagerListAdapter(getActivity(), android.R.layout.simple_list_item_activated_1,
 					android.R.id.text1, cmisObjectList.toArray());
 			setListAdapter(listAdapter);
+			return cmisObjectList;
 		}
 	}
 }
